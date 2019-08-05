@@ -125,9 +125,26 @@ void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
                     *reply_data = (uint8_t*)USB_StringDescriptor_Product;
                     *reply_length = (uint8_t)*USB_StringDescriptor_Product;
                     break;
-                case 3:
-                    *reply_data = (uint8_t*)USB_StringDescriptor_Serial;
-                    *reply_length = (uint8_t)*USB_StringDescriptor_Serial;
+                case 3:;
+                    // String descriptors are 16 bits per char
+                    static uint16_t buff[26];
+                    // The first byte is the total length in bytes, the second
+                    // byte is the descriptor type (3)
+                    buff[0] = (0x03 << 8) | sizeof(buff);
+                    // The unique device ID is 96 bits = 12 bytes long
+                    for(int i = 0; i < 12; i++)
+                    {
+                        uint8_t uid_byte = *((uint8_t*)UID_BASE + i);
+                        // The representation does not matter for the serial, so
+                        // we're using one of the first 16 letters of the
+                        // alphabet for each nibble
+                        buff[1 + 2 * i] = 'A' + (uid_byte & 0x0f);
+                        buff[2 + 2 * i] = 'A' + (uid_byte >> 4);
+                    }
+                    // Null-erminate the string
+                    buff[sizeof(buff) / 2 - 1] = 0;
+                    *reply_data = (uint8_t*)buff;
+                    *reply_length = (uint8_t)*buff;
                     break;
                 default:
                     __asm__ volatile("bkpt");
