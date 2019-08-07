@@ -10,8 +10,6 @@ MODULE_OWNS_PIN(GPIOA, PIN_USB_PULLUP);
 MODULE_OWNS_PIN(GPIOA, PIN_USB_DM);
 MODULE_OWNS_PIN(GPIOA, PIN_USB_DP);
 
-USB_PacketHandler_t USB_EP0OutPacketHandler;
-
 uint8_t USB_DeviceStatus[2] = {0x00, 0x01};
 volatile unsigned int USB_ResetCount = 0;
 volatile unsigned int USB_Address = 0;
@@ -115,21 +113,6 @@ static inline void USB_HandleIn(void)
     if((USB->DADDR & USB_DADDR_ADD) != USB_Address)
     {
         USB->DADDR = USB_Address | USB_DADDR_EF;
-    }
-
-    // Ready for next packet
-    USB_SetEPRXStatus(&USB->EP0R, USB_EP_RX_VALID);
-}
-
-static inline void USB_Handle0Out(void)
-{
-    int length = USB_BTABLE_ENTRIES[0].COUNT_RX & 0x3ff;
-    if(length != 0)
-    {
-        if(USB_EP0OutPacketHandler != NULL)
-        {
-            USB_EP0OutPacketHandler(length);
-        }
     }
 
     // Ready for next packet
@@ -289,10 +272,11 @@ void USB_Poll(void)
                         }
                         else
                         {
+                            // Only setup packets are supported, so other out
+                            // transfers are just ignored
+
                             // Clear CTR_RX
                             USB_ClearCTRRX(&(USB->EP0R));
-
-                            USB_Handle0Out();
                         }
                     }
                     else

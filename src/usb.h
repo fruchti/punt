@@ -125,10 +125,6 @@ typedef struct
 #define USB_BTABLE_ENTRIES                      \
     ((volatile USB_BufferTableEntry_t*)(USB_PMA_ADDR + USB_BTABLE_OFFSET))
 
-typedef void (*USB_PacketHandler_t)(int length);
-
-extern USB_PacketHandler_t USB_EP0OutPacketHandler;
-
 void USB_Init(void);
 
 void USB_Poll(void);
