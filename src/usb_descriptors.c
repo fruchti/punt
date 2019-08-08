@@ -141,7 +141,7 @@ void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
                         buff[1 + 2 * i] = 'A' + (uid_byte & 0x0f);
                         buff[2 + 2 * i] = 'A' + (uid_byte >> 4);
                     }
-                    // Null-erminate the string
+                    // Null-terminate the string
                     buff[sizeof(buff) / 2 - 1] = 0;
                     *reply_data = (uint8_t*)buff;
                     *reply_length = (uint8_t)*buff;
