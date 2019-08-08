@@ -48,10 +48,6 @@ void USB_Init(void)
     GPIOA->ODR &= ~(GPIO_CRH_MODE11 | GPIO_CRH_MODE12);
     USB_Delay(100000);
 
-    // // Enable reset and correct transfer interrupts
-    // NVIC_EnableIRQ(USB_LP_IRQn);
-    // NVIC_SetPriority(USB_LP_IRQn, 7);
-
     // Analog power up
     USB->CNTR = (uint16_t)USB_CNTR_FRES;
     // Minimum delay: 1 µs
@@ -82,7 +78,7 @@ static inline void USB_HandleReset(void)
     // Set buffer table origin
     USB->BTABLE = USB_BTABLE_OFFSET;
 
-    // Control endpoint 0
+    // Control endpoint 0 (64 bytes size)
     USB_BTABLE_ENTRIES[0].COUNT_RX = USB_EP_RXCOUNT_BL_SIZE | (1 << 10);
     USB_BTABLE_ENTRIES[0].ADDR_RX = 0x40;
     USB_BTABLE_ENTRIES[0].COUNT_TX = 0;
@@ -91,16 +87,16 @@ static inline void USB_HandleReset(void)
     USB_SetEPR(&(USB->EP0R), USB_EPR_EP_TYPE_CONTROL
         | USB_EPR_STAT_TX_NAK | USB_EPR_STAT_RX_VALID);
 
-    // Endpoint 1: In (buffer size 64)
+    // Endpoint 1: In (buffer size 128)
     USB_BTABLE_ENTRIES[1].COUNT_TX = 0;
-    USB_BTABLE_ENTRIES[1].ADDR_TX = 0x100;
+    USB_BTABLE_ENTRIES[1].ADDR_TX = 0xc0;
 
     USB_SetEPR(&(USB->EP1R), USB_EPR_EP_TYPE_BULK
         | USB_EPR_STAT_TX_NAK | USB_EPR_STAT_RX_DISABLED
         | (1 << USB_EP1R_EA_Pos));
 
-    // Endpoint 2: Out (buffer size 64)
-    USB_BTABLE_ENTRIES[2].COUNT_RX = USB_EP_RXCOUNT_BL_SIZE | (1 << 10);
+    // Endpoint 2: Out (buffer size 192)
+    USB_BTABLE_ENTRIES[2].COUNT_RX = USB_EP_RXCOUNT_BL_SIZE | (5 << 10);
     USB_BTABLE_ENTRIES[2].ADDR_RX = 0x140;
 
     USB_SetEPR(&(USB->EP2R), USB_EPR_EP_TYPE_BULK
