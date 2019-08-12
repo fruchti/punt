@@ -101,7 +101,7 @@ typedef union
         USB_EndpointDescriptor_t data_in_endpoint;
         USB_EndpointDescriptor_t data_out_endpoint;
     } __attribute__((packed, aligned(1)));
-    uint8_t raw[62];
+    uint8_t raw[32];
 } __attribute__((packed, aligned(1))) USB_WholeDescriptor_t;
 
 

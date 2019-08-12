@@ -88,30 +88,26 @@ typedef struct
         volatile uint16_t ADDR_TX;
         volatile uint16_t ADDR_RX_0;
         volatile uint16_t ADDR_TX_0;
-    };
-    volatile uint16_t rsvd1;
+    } __attribute__((aligned(4)));
     volatile union
     {
         volatile uint16_t COUNT_TX;
         volatile uint16_t COUNT_RX_0;
         volatile uint16_t COUNT_TX_0;
-    };
-    volatile uint16_t rsvd2;
+    } __attribute__((aligned(4)));
     volatile union
     {
         volatile uint16_t ADDR_RX;
         volatile uint16_t ADDR_RX_1;
         volatile uint16_t ADDR_TX_1;
-    };
-    volatile uint16_t rsvd3;
+    } __attribute__((aligned(4)));
     volatile union
     {
         volatile uint16_t COUNT_RX;
         volatile uint16_t COUNT_RX_1;
         volatile uint16_t COUNT_TX_1;
-    };
-    volatile uint16_t rsvd4;
-} __attribute__((packed, aligned(4))) USB_BufferTableEntry_t;
+    } __attribute__((aligned(4)));
+} __attribute__((aligned(8))) USB_BufferTableEntry_t;
 
 typedef struct
 {

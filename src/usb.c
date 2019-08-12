@@ -87,17 +87,21 @@ static inline void USB_HandleReset(void)
     USB_SetEPR(&(USB->EP0R), USB_EPR_EP_TYPE_CONTROL
         | USB_EPR_STAT_TX_NAK | USB_EPR_STAT_RX_VALID);
 
-    // Endpoint 1: In (buffer size 128)
+    // Endpoint 1: In (buffer size 64)
     USB_BTABLE_ENTRIES[1].COUNT_TX = 0;
     USB_BTABLE_ENTRIES[1].ADDR_TX = 0xc0;
+    USB_BTABLE_ENTRIES[1].COUNT_RX = 0;
+    USB_BTABLE_ENTRIES[1].ADDR_RX = 0;
 
     USB_SetEPR(&(USB->EP1R), USB_EPR_EP_TYPE_BULK
         | USB_EPR_STAT_TX_NAK | USB_EPR_STAT_RX_DISABLED
         | (1 << USB_EP1R_EA_Pos));
 
-    // Endpoint 2: Out (buffer size 192)
+    // Endpoint 2: Out (buffer size 256)
     USB_BTABLE_ENTRIES[2].COUNT_RX = USB_EP_RXCOUNT_BL_SIZE | (5 << 10);
-    USB_BTABLE_ENTRIES[2].ADDR_RX = 0x140;
+    USB_BTABLE_ENTRIES[2].ADDR_RX = 0x100;
+    USB_BTABLE_ENTRIES[2].COUNT_TX = 0;
+    USB_BTABLE_ENTRIES[2].ADDR_TX = 0;
 
     USB_SetEPR(&(USB->EP2R), USB_EPR_EP_TYPE_BULK
         | USB_EPR_STAT_TX_DISABLED | USB_EPR_STAT_RX_VALID
@@ -139,6 +143,12 @@ static inline void USB_HandleCommand(const USB_SetupPacket_t *sp)
             // length are transferred via EP2
             USB_PendingCommand = CMD_READ_CRC;
             break;
+
+        case CMD_READ_MEMORY:
+            // The command will be executed as soon as the start address and
+            // length are transferred via EP2
+            USB_PendingCommand = CMD_READ_MEMORY;
+            break;
         
         default:
             // Invalid commands get ignored
@@ -163,7 +173,7 @@ static inline void USB_HandleEP2Out(void)
 
     // Reply to be transmitted via EP1
     const void *reply_data = NULL;
-    int reply_length = 0;
+    uint16_t reply_length = 0;
 
     uint32_t buff[2];
 
@@ -190,6 +200,24 @@ static inline void USB_HandleEP2Out(void)
                 buff[0] = CRC->DR;
                 reply_data = buff;
                 reply_length = 4;
+            }
+            break;
+
+
+        case CMD_READ_MEMORY:
+            if(packet_length == 8)
+            {
+                USB_PMAToMemory((uint8_t*)buff, USB_BTABLE_ENTRIES[2].ADDR_RX, 8);
+                uint8_t *start = (uint8_t*)(buff[0]);
+                uint32_t length = buff[1];
+
+                if(length > 128)
+                {
+                    length = 128;
+                }
+
+                reply_data = start;
+                reply_length = length;
             }
             break;
 
@@ -372,12 +400,12 @@ void USB_Poll(void)
                     // Data out endpoint
                     if(istr & USB_ISTR_DIR)
                     {
-                        // Out transfer finished
-                        USB_HandleEP2Out();
-
                         // Clear CTR_RX
                         USB_ClearCTRRX(&(USB->EP2R));
                         USB_SetEPRXStatus(&(USB->EP2R), USB_EP_RX_VALID);
+
+                        // Out transfer finished
+                        USB_HandleEP2Out();
                     }
                     else
                     {

@@ -19,4 +19,10 @@ typedef enum
     //  ->  Length: u32
     //  <-  CRC32: u32
     CMD_READ_CRC = 0x02,
+
+    // Read memory contents
+    //  ->  Start address: u32
+    //  ->  Length n: u32
+    //  <-  Data: n bytes
+    CMD_READ_MEMORY = 0x03,
 } Command_t;
