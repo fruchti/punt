@@ -12,6 +12,8 @@ typedef struct
 {
     uint32_t build_date;
     uint32_t build_number;
+    uint32_t flash_application_start;
+    uint32_t flash_application_size;
 } BuildInfo_t;
 
 extern const BuildInfo_t BuildInfo;

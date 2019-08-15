@@ -12,6 +12,8 @@ typedef enum
     // Basic bootloader info. Returns 8 bytes:
     //  <-  Build date: u32 (YYYYMMDD as an unsigned integer)
     //  <-  Build number: u32
+    //  <-  Flash application base address: u32
+    //  <-  Maximum application size: u32
     CMD_BOOTLOADER_INFO = 0x01,
 
     // Calculate a CRC32 of a memory region:
