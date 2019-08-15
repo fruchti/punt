@@ -25,4 +25,9 @@ typedef enum
     //  ->  Length n: u32
     //  <-  Data: n bytes
     CMD_READ_MEMORY = 0x03,
+
+    // Erase a single 1 KiB flash page
+    //  ->  Page number: u8
+    //  <-  Return code (0 for success): u8
+    CMD_ERASE_PAGE = 0x04,
 } Command_t;

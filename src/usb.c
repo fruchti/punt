@@ -255,7 +255,6 @@ void USB_Poll(void)
                         // Clear CTR_TX
                         USB_ClearCTRTX(&(USB->EP0R));
 
-                        // In transfer
                         USB_HandleIn();
                     }
                     break;

@@ -28,8 +28,6 @@ static inline void Clock_Init(void)
     RCC->CIR = 0x00000000;
 }
 
-
-
 int main(void)
 {
     Clock_Init();
@@ -39,7 +37,6 @@ int main(void)
 
     LED_OFF();
 
-    
     for(;;)
     {
         USB_Poll();
