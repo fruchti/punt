@@ -87,17 +87,19 @@ void USB_HandleEP2Out(void)
                 uint32_t buff[2];
                 USB_PMAToMemory((uint8_t*)buff, USB_BTABLE_ENTRIES[2].ADDR_RX,
                     sizeof(buff));
-                uint8_t *start = (uint8_t*)(buff[0]);
+                uint32_t *addr = (uint32_t*)(buff[0]);
                 uint32_t length = buff[1];
 
                 CRC->CR = CRC_CR_RESET;
 
                 // TODO: Add basic sanity checks so it isn't possible to crash
                 // the bootloader with this command (or at least not as easy)
-                while(length--)
+                while(length > 4)
                 {
-                    CRC->DR = *start++;
+                    CRC->DR = *addr++;
+                    length -= 4;
                 }
+                CRC->DR = *addr & (0xffffffffU >> (32 - 8 * length));
 
                 buff[0] = CRC->DR;
                 USB_EP1Transmit(buff, 4);

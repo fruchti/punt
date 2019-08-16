@@ -1,6 +1,9 @@
 #include "flash.h"
 #include "usb.h"
 
+#include "ownership.h"
+MODULE_OWNS_PERIPHERAL(FLASH);
+
 static inline void Flash_Unlock(void)
 {
     FLASH->KEYR = FLASH_KEY1;

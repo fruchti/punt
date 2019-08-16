@@ -9,7 +9,7 @@ MODULE_OWNS_PIN(GPIOA, PIN_USB_PULLUP);
 MODULE_OWNS_PIN(GPIOA, PIN_USB_DM);
 MODULE_OWNS_PIN(GPIOA, PIN_USB_DP);
 
-uint8_t USB_DeviceStatus[2] = {0x00, 0x01};
+uint8_t USB_DeviceStatus[2] = {0x00, 0x00};
 volatile unsigned int USB_ResetCount = 0;
 volatile unsigned int USB_Address = 0;
 
