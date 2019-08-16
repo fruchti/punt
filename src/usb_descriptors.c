@@ -65,7 +65,7 @@ const USB_WholeDescriptor_t USB_ConfigurationInterfaceDescriptor =
         .bEndpointAddress = USB_ENDPOINT_OUT | 2,
         .bmAttributes = USB_ENDPOINT_BULK | USB_ENDPOINT_NO_SYNCHRONIZATION
             | USB_ENDPOINT_DATA,
-        .wMaxPacketSize = 256,
+        .wMaxPacketSize = 64,
         .bInterval = 0x01
     },
 };

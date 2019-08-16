@@ -44,6 +44,10 @@ void USB_HandleCommand(const USB_SetupPacket_t *sp)
             USB_PendingCommand = CMD_ERASE_PAGE;
             break;
 
+        case CMD_PROGRAM:
+            USB_PendingCommand = CMD_PROGRAM;
+            break;
+
         default:
             // Invalid commands get ignored
             break;
@@ -141,6 +145,21 @@ void USB_HandleEP2Out(void)
                 // Reply with status byte
                 USB_EP1Transmit(buff, 1);
             }
+            break;
+
+        case CMD_PROGRAM:;
+            uint32_t start;
+            USB_PMAToMemory((uint8_t*)&start, USB_BTABLE_ENTRIES[2].ADDR_RX, 4);
+            uint32_t length = packet_length - 4;
+            if(start >= FLASH_APPLICATION_START && start + length
+                <= FLASH_BASE + FLASH_PAGE_BYTES * FLASH_PAGES)
+            {
+                // Program directly from PMA without an intermediate buffer in
+                // RAM
+                Flash_ProgramFromPMA(start, USB_BTABLE_ENTRIES[2].ADDR_RX + 4,
+                    length);
+            }
+            break;
 
         default:
             break;

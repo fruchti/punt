@@ -32,4 +32,9 @@ typedef enum
     //  ->  Page number: u8
     //  <-  Return code (0 for success): u8
     CMD_ERASE_PAGE = 0x04,
+
+    // Program flash
+    //  ->  Start adress: u32
+    //  ->  Data: n bytes (n must be even)
+    CMD_PROGRAM = 0x05,
 } Command_t;

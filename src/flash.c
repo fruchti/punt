@@ -1,4 +1,5 @@
 #include "flash.h"
+#include "usb.h"
 
 static inline void Flash_Unlock(void)
 {
@@ -25,6 +26,7 @@ Flash_Status_t Flash_ErasePage(int page)
     FLASH->AR = page_start;
     FLASH->CR |= FLASH_CR_STRT;
     while(FLASH->SR & FLASH_SR_BSY);
+    FLASH->CR &= ~FLASH_CR_PER;
     Flash_Lock();
 
     // Verify
@@ -37,4 +39,23 @@ Flash_Status_t Flash_ErasePage(int page)
     }
 
     return FLASH_SUCCESS;
+}
+
+void Flash_ProgramFromPMA(uint32_t flash_adress, uint16_t pma_offset,
+    uint32_t length)
+{
+    Flash_Unlock();
+
+    uint16_t *pma = (uint16_t*)(USB_PMA_ADDR + 2 * pma_offset);
+    volatile uint16_t *flash = (uint16_t*)flash_adress;
+    FLASH->CR |= FLASH_CR_PG;
+    for(unsigned int i = 0; i < (length + 1) / 2; i++)
+    {
+        *flash++ = *pma++;
+        pma++;
+        while(FLASH->SR & FLASH_SR_BSY);
+    }
+    FLASH->CR &= ~FLASH_CR_PG;
+
+    Flash_Lock();
 }

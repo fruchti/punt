@@ -19,3 +19,5 @@ typedef enum
 
 
 Flash_Status_t Flash_ErasePage(int page);
+void Flash_ProgramFromPMA(uint32_t flash_adress, uint16_t pma_offset,
+    uint32_t length);

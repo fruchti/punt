@@ -94,8 +94,8 @@ static inline void USB_HandleReset(void)
         | USB_EPR_STAT_TX_NAK | USB_EPR_STAT_RX_DISABLED
         | (1 << USB_EP1R_EA_Pos));
 
-    // Endpoint 2: Out (buffer size 256)
-    USB_BTABLE_ENTRIES[2].COUNT_RX = USB_EP_RXCOUNT_BL_SIZE | (5 << 10);
+    // Endpoint 2: Out (buffer size 64)
+    USB_BTABLE_ENTRIES[2].COUNT_RX = USB_EP_RXCOUNT_BL_SIZE | (1 << 10);
     USB_BTABLE_ENTRIES[2].ADDR_RX = 0x100;
     USB_BTABLE_ENTRIES[2].COUNT_TX = 0;
     USB_BTABLE_ENTRIES[2].ADDR_TX = 0;
