@@ -14,36 +14,23 @@ uint8_t USB_DeviceStatus[2] = {0x00, 0x00};
 volatile unsigned int USB_ResetCount = 0;
 volatile unsigned int USB_Address = 0;
 
-static inline void USB_EnablePullup(void)
-{
-    GPIOA->BSRR = 1 << PIN_USB_PULLUP;
-    GPIOA->CRH = (GPIOA->CRH
-        & ~(0x0f << (PIN_USB_PULLUP * 4 - 32)))
-        | (0x01 << (PIN_USB_PULLUP * 4 - 32))       // Push-pull output, 10 MHz
-        ;    
-}
-
-static inline void USB_DisablePullup(void)
-{
-    GPIOA->BRR = 1 << PIN_USB_PULLUP;
-    GPIOA->CRH = (GPIOA->CRH
-        & ~(0x0f << (PIN_USB_PULLUP * 4 - 32)))
-        | (0x04 << (PIN_USB_PULLUP * 4 - 32))       // Floating input
-        ; 
-}
-
 void USB_Init(void)
 {
-    // GPIOA clock
-    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
-    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
-    RCC->APB1ENR |= RCC_APB1ENR_USBEN;
-    RCC->AHBENR |= RCC_AHBENR_CRCEN;
+    // Free PA15 (pullup for D+) for use as GPIO
+    AFIO->MAPR = AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
 
-    GPIOA->CRH &= ~(GPIO_CRH_CNF11 | GPIO_CRH_MODE11
-        | GPIO_CRH_CNF12 | GPIO_CRH_MODE12);
-    GPIOA->CRH |= GPIO_CRH_MODE11 | GPIO_CRH_MODE12;
-    GPIOA->ODR &= ~(GPIO_CRH_MODE11 | GPIO_CRH_MODE12);
+    // Initialise USB GPIOs to AF mode, set pullup high
+    // Note: This will reset the test point pin to an input without pullup
+    GPIOA->ODR = 1 << PIN_USB_PULLUP;
+    GPIOA->CRH = (0x44444444
+        & ~(0x0f << (PIN_USB_DM * 4 - 32))
+        & ~(0x0f << (PIN_USB_DP * 4 - 32))
+        & ~(0x0f << (PIN_USB_PULLUP * 4 - 32)))
+        | (0x0b << (PIN_USB_DM * 4 - 32))           // AF mode, 50 MHz
+        | (0x0b << (PIN_USB_DP * 4 - 32))           // AF mode, 50 MHz
+        | (0x01 << (PIN_USB_PULLUP * 4 - 32))       // Push-pull output, 10 MHz
+        ;
+
     Util_Delay(100000);
 
     // Analog power up
@@ -54,17 +41,6 @@ void USB_Init(void)
     USB->CNTR = (uint16_t)0;
     USB->ISTR = (uint16_t)0;
     USB->CNTR = (uint16_t)(USB_CNTR_RESETM | USB_CNTR_CTRM);
-    
-    // Free PA15 for use as GPIO
-    AFIO->MAPR = (AFIO->MAPR
-        & ~(AFIO_MAPR_SWJ_CFG))
-        | AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
-    USB_EnablePullup();
-
-    // Configure USB pins (PA11 and PA12 in AF mode, 50 MHz push-pull)
-    GPIOA->CRH |= GPIO_CRH_CNF11_1 | GPIO_CRH_MODE11
-        | GPIO_CRH_CNF12_1 | GPIO_CRH_MODE12;
-
 }
 
 static inline void USB_HandleReset(void)

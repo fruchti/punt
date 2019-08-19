@@ -6,33 +6,39 @@
 static inline void Clock_Init(void)
 {
     // Activate HSE and wait for it to be ready
-    RCC->CR = RCC_CR_HSEON;
+    RCC->CR = RCC_CR_HSEON | RCC_CR_HSION;
     while(!(RCC->CR & RCC_CR_HSERDY));
 
     RCC->CFGR = RCC_CFGR_SW_0;
     while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_0);
 
-    FLASH->ACR |= FLASH_ACR_LATENCY_1;
+    FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY_1;
 
     // Set PLL to x9 (-> 72MHz system clock)
-    RCC->CFGR |= RCC_CFGR_PLLMULL9 | RCC_CFGR_PLLSRC | RCC_CFGR_PPRE1_2;
+    RCC->CFGR = RCC_CFGR_PLLMULL9 | RCC_CFGR_PLLSRC | RCC_CFGR_PPRE1_2
+        | RCC_CFGR_SW_0;
 
     // Activate PLL and wait
-    RCC->CR |= RCC_CR_PLLON;
+    RCC->CR = RCC_CR_PLLON | RCC_CR_HSEON | RCC_CR_HSION;
     while(!(RCC->CR & RCC_CR_PLLRDY));
 
     // Select PLL as clock source
-    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | RCC_CFGR_SW_1;
+    RCC->CFGR = RCC_CFGR_PLLMULL9 | RCC_CFGR_PLLSRC | RCC_CFGR_PPRE1_2
+        | RCC_CFGR_SW_1;
 
     // Disable all interrupts
     RCC->CIR = 0x00000000;
+
+    // Enable peripheral clocks
+    RCC->APB2ENR = RCC_APB2ENR_IOPAEN | RCC_APB2ENR_AFIOEN;
+    RCC->APB1ENR = RCC_APB1ENR_PWREN | RCC_APB1ENR_BKPEN | RCC_APB1ENR_USBEN;
+    RCC->AHBENR = RCC_AHBENR_CRCEN;
 }
 
 static inline bool Bootloader_EntryCondition(void)
 {
     // Activate pull-up for test point
-    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
-    GPIOA->CRH = (GPIOA->CRH
+    GPIOA->CRH = (0x44444444
         & ~(0x0f << (PIN_TEST_POINT * 4 - 32)))
         | (0x08<< (PIN_TEST_POINT * 4 - 32))
         ;
@@ -48,8 +54,7 @@ static inline bool Bootloader_EntryCondition(void)
     }
 
     // Check RTC backup register 1 for magic value
-    RCC->APB1ENR |= RCC_APB1ENR_PWREN | RCC_APB1ENR_BKPEN;
-    PWR->CR |= PWR_CR_DBP;
+    PWR->CR = PWR_CR_DBP;
     if(BKP->DR1 == 0xb007)
     {
         return true;
@@ -69,9 +74,11 @@ static inline void Bootloader_Exit(void)
     // Reset RTC backup register
     BKP->DR1 = 0x0000;
 
-    // Reset test point GPIO state to original
-    GPIOA->CRH = 0x44444444;
-    GPIOA->ODR = 0x00000000;
+    // Reset peripherals
+    RCC->APB1RSTR = RCC_APB1RSTR_USBRST; 
+    RCC->APB2RSTR = RCC_APB2RSTR_IOPARST | RCC_APB2RSTR_AFIORST;
+    RCC->APB1RSTR = 0x00000000;
+    RCC->APB2RSTR = 0x00000000;
 
     // Reset peripheral clock enable registers to their reset values
     RCC->AHBENR = 0x00000014;   // Disable CRC
@@ -105,10 +112,6 @@ int main(void)
 
         // Delay to allow answer token to be fetched by host
         Util_Delay(100000);
-
-        // Reset USB peripheral
-        RCC->APB1RSTR = RCC_APB1RSTR_USBRST;
-        RCC->APB1RSTR = 0x00000000;
     }
 
     Bootloader_Exit();
