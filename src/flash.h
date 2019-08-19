@@ -3,7 +3,7 @@
 #include "stm32f103x6.h"
 
 #define FLASH_PAGE_BYTES        1024U
-#define FLASH_BOOTLOADER_PAGES  3U
+#define FLASH_BOOTLOADER_PAGES  2U
 #define FLASH_PAGES             64U
 
 typedef enum
