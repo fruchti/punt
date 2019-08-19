@@ -105,16 +105,9 @@ static inline bool USB_HandleSetup(void)
     USB_PMAToMemory((uint8_t*)&sp, USB_BTABLE_ENTRIES[0].ADDR_RX,
         sizeof(USB_SetupPacket_t));
 
-    // Delete this: Sanity check for abnormal setup package lengths
-    int packet_length = USB_BTABLE_ENTRIES[0].COUNT_RX & 0x3ff;
-    if(packet_length > sizeof(USB_SetupPacket_t))
-    {
-        __asm__ volatile("bkpt");
-    }
-
     const uint8_t *reply_data = NULL;
     int reply_length = 0;
-    uint8_t reply_response = USB_TOKEN_ACK;
+    uint8_t reply_response = USB_EP_TX_STALL;
 
     if((sp.bmRequestType & (USB_REQUEST_TYPE | USB_REQUEST_RECIPIENT))
         == (USB_REQUEST_TYPE_STANDARD | USB_REQUEST_RECIPIENT_DEVICE))
@@ -169,7 +162,6 @@ static inline bool USB_HandleSetup(void)
     {
         // Unknown request
         reply_response = USB_EP_TX_STALL;
-        __asm__ volatile("bkpt");
     }
 
     if(reply_data)
@@ -249,44 +241,24 @@ bool USB_Poll(void)
 
                 case 1:
                     // Data in endpoint
-                    if(istr & USB_ISTR_DIR)
-                    {
-                        // Out transfer finished (shouldn't happen)
-                        __asm__ volatile("bkpt");
-                    }
-                    else
-                    {
-                        // In transfer finished. STAT_TX gets set to NAK
-                        // automatically.
+                    
+                    // In transfer finished. STAT_TX gets set to NAK
+                    // automatically.
 
-                        // Clear CTR_TX
-                        USB_BTABLE_ENTRIES[1].COUNT_TX = 0;
-                        USB_ClearCTRTX(&(USB->EP1R));
-                    }
+                    // Clear CTR_TX
+                    USB_BTABLE_ENTRIES[1].COUNT_TX = 0;
+                    USB_ClearCTRTX(&(USB->EP1R));
                     break;
 
                 case 2:
                     // Data out endpoint
-                    if(istr & USB_ISTR_DIR)
-                    {
-                        // Clear CTR_RX
-                        USB_ClearCTRRX(&(USB->EP2R));
-                        USB_SetEPRXStatus(&(USB->EP2R), USB_EP_RX_VALID);
 
-                        // Out transfer finished
-                        USB_HandleEP2Out();
-                    }
-                    else
-                    {
-                        // In transfer finished (shouldn't happen)
+                    // Clear CTR_RX
+                    USB_ClearCTRRX(&(USB->EP2R));
+                    USB_SetEPRXStatus(&(USB->EP2R), USB_EP_RX_VALID);
 
-                        __asm__ volatile("bkpt");
-                    }
-                    break;
-
-                default:
-                    // Other endpoints are not implemented
-                    __asm__ volatile("bkpt");
+                    // Out transfer finished
+                    USB_HandleEP2Out();
                     break;
             }
         }

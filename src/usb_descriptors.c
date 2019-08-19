@@ -146,23 +146,14 @@ void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
                     *reply_data = (uint8_t*)buff;
                     *reply_length = (uint8_t)*buff;
                     break;
-                default:
-                    __asm__ volatile("bkpt");
             }
             break;
 
         case USB_INTERFACE_DESCRIPTOR:
-            switch(descriptor_index)
-            {
-                case 0:
-                    *reply_data = USB_ConfigurationInterfaceDescriptor
-                            .main_interface.raw;
-                    *reply_length = USB_ConfigurationInterfaceDescriptor
-                            .main_interface.bLength;
-                            
-                default:
-                    __asm__ volatile("bkpt");
-            }
+            *reply_data = USB_ConfigurationInterfaceDescriptor
+                    .main_interface.raw;
+            *reply_length = USB_ConfigurationInterfaceDescriptor
+                    .main_interface.bLength;
             break;
 
         case USB_DEVICE_QUALIFIER_DESCRIPTOR:
@@ -178,7 +169,6 @@ void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
         case USB_CLASS_SPECIFIC_INTERFACE_DESCRIPTOR:
         case USB_CLASS_SPECIFIC_ENDPOINT_DESCRIPTOR:
             // Not implemented
-            __asm__ volatile("bkpt");
             break;
     }
 }
