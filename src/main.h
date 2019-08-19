@@ -6,5 +6,7 @@
 #include "debug.h"
 #include "usb.h"
 #include "led.h"
+#include "flash.h"
+#include "util.h"
 
 int main(void);

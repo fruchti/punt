@@ -7,7 +7,7 @@
 static Command_t USB_PendingCommand = CMD_NOP;
 
 
-void USB_HandleCommand(const USB_SetupPacket_t *sp)
+bool USB_HandleCommand(const USB_SetupPacket_t *sp)
 {
     // The command is stored in the second byte (bRequest field) of the setup
     // packet
@@ -48,6 +48,9 @@ void USB_HandleCommand(const USB_SetupPacket_t *sp)
             USB_PendingCommand = CMD_PROGRAM;
             break;
 
+        case CMD_EXIT:
+            return false;
+
         default:
             // Invalid commands get ignored
             break;
@@ -62,6 +65,8 @@ void USB_HandleCommand(const USB_SetupPacket_t *sp)
 
         USB_SetEPTXStatus(&(USB->EP1R), USB_EP_TX_VALID);
     }
+
+    return true;
 }
 
 void USB_EP1Transmit(void *data, uint16_t length)
@@ -153,7 +158,7 @@ void USB_HandleEP2Out(void)
             uint32_t start;
             USB_PMAToMemory((uint8_t*)&start, USB_BTABLE_ENTRIES[2].ADDR_RX, 4);
             uint32_t length = packet_length - 4;
-            if(start >= FLASH_APPLICATION_START && start + length
+            if(start >= FLASH_APPLICATION_BASE && start + length
                 <= FLASH_BASE + FLASH_PAGE_BYTES * FLASH_PAGES)
             {
                 // Program directly from PMA without an intermediate buffer in

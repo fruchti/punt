@@ -21,7 +21,7 @@ Flash_Status_t Flash_ErasePage(int page)
     {
         return FLASH_PROHIBITED;
     }
-    uint32_t page_start = FLASH_START + page * FLASH_PAGE_BYTES;
+    uint32_t page_start = FLASH_BASE + page * FLASH_PAGE_BYTES;
 
     Flash_Unlock();
     while(FLASH->SR & FLASH_SR_BSY);

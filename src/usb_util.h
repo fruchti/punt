@@ -94,14 +94,5 @@ static inline void USB_ClearDTOGTX(volatile uint16_t *EPR)
     *EPR = v;
 }
 
-static inline void USB_Delay(unsigned int delay)
-{
-    SysTick->LOAD = delay;
-    SysTick->VAL = 0;
-    SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk;
-    while(!((SysTick->CTRL) & SysTick_CTRL_COUNTFLAG_Msk));
-	SysTick->CTRL = 0;
-}
-
 void USB_PMAToMemory(uint8_t *mem, uint16_t offset, size_t length);
 void USB_MemoryToPMA(uint16_t offset, const uint8_t *mem, size_t length);

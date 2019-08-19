@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string.h>
+#include <stdbool.h>
 #include "stm32f103x6.h"
 
 #include "pinning.h"
@@ -123,4 +124,8 @@ typedef struct
 
 void USB_Init(void);
 
-void USB_Poll(void);
+// Because no interrupts are used, the interrupt flags have to be polled in a
+// loop. This functions checks the flags and handles the interrupt requests. It
+// has thus to be called in a loop. It returns false if the bootloader should
+// exit and the application be started.
+bool USB_Poll(void);

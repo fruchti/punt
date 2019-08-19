@@ -2,6 +2,7 @@
 #include "usb_descriptors.h"
 #include "usb_util.h"
 #include "usb_com.h"
+#include "util.h"
 
 #include "ownership.h"
 MODULE_OWNS_PERIPHERAL(USB);
@@ -43,12 +44,12 @@ void USB_Init(void)
         | GPIO_CRH_CNF12 | GPIO_CRH_MODE12);
     GPIOA->CRH |= GPIO_CRH_MODE11 | GPIO_CRH_MODE12;
     GPIOA->ODR &= ~(GPIO_CRH_MODE11 | GPIO_CRH_MODE12);
-    USB_Delay(100000);
+    Util_Delay(100000);
 
     // Analog power up
     USB->CNTR = (uint16_t)USB_CNTR_FRES;
     // Minimum delay: 1 µs
-    USB_Delay(3000);
+    Util_Delay(3000);
 
     USB->CNTR = (uint16_t)0;
     USB->ISTR = (uint16_t)0;
@@ -120,8 +121,10 @@ static inline void USB_HandleIn(void)
 }
 
 
-static inline void USB_HandleSetup(void)
+static inline bool USB_HandleSetup(void)
 {
+    bool exit_bootloader = false;
+
     USB_SetupPacket_t sp;
     USB_PMAToMemory((uint8_t*)&sp, USB_BTABLE_ENTRIES[0].ADDR_RX,
         sizeof(USB_SetupPacket_t));
@@ -181,7 +184,10 @@ static inline void USB_HandleSetup(void)
     else if((sp.bmRequestType & USB_REQUEST_TYPE) == USB_REQUEST_TYPE_VENDOR)
     {
         reply_response = USB_EP_TX_VALID;
-        USB_HandleCommand(&sp);
+        if(!USB_HandleCommand(&sp))
+        {
+            exit_bootloader = true;
+        }
     }
     else
     {
@@ -207,15 +213,17 @@ static inline void USB_HandleSetup(void)
 
     // Ready for the next packet
     USB_SetEPRXStatus(&(USB->EP0R), USB_EP_RX_VALID);
+
+    return !exit_bootloader;
 }
 
-void USB_Poll(void)
+bool USB_Poll(void)
 {
     if(USB->ISTR & USB_ISTR_RESET)
     {
         // Reset happened
         USB_HandleReset();
-        return;
+        return true;
     }
     uint16_t istr;
     while((istr = USB->ISTR) & (USB_ISTR_CTR))
@@ -236,8 +244,12 @@ void USB_Poll(void)
                             // Clear CTR_RX
                             USB_ClearCTRRX(&(USB->EP0R));
 
-                            // Setup packed received
-                            USB_HandleSetup();
+                            // Setup packed received and check if a command to
+                            // exit the bootloader was received
+                            if(!USB_HandleSetup())
+                            {
+                                return false;
+                            }
                         }
                         else
                         {
@@ -303,4 +315,6 @@ void USB_Poll(void)
             }
         }
     }
+
+    return true;
 }

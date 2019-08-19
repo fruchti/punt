@@ -37,4 +37,7 @@ typedef enum
     //  ->  Start adress: u32
     //  ->  Data: n bytes (n must be even)
     CMD_PROGRAM = 0x05,
+
+    // Exit bootloader and start application software
+    CMD_EXIT = 0xff
 } Command_t;
