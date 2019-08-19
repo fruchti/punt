@@ -37,3 +37,15 @@ void USB_MemoryToPMA(uint16_t offset, const uint8_t *mem, size_t length)
         pma++;
     }
 }
+
+void USB_SetEPR(volatile uint16_t *EPR, uint16_t status)
+{
+    // Caution: This function does a read-modify-write and is prone to
+    // unexpected behaviour when there are transactions going one, because the
+    // register contents might change during the function's execution. Thus,
+    // only use this function in initialisation code!
+    volatile uint16_t v = *EPR;
+    status ^= v & (USB_EP0R_DTOG_RX | USB_EP0R_STAT_RX |\
+        USB_EP0R_DTOG_TX | USB_EP0R_STAT_TX);
+    *EPR = status;
+}

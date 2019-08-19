@@ -91,9 +91,6 @@ static inline void USB_HandleIn(void)
     {
         USB->DADDR = USB_Address | USB_DADDR_EF;
     }
-
-    // Ready for next packet
-    USB_SetEPRXStatus(&USB->EP0R, USB_EP_RX_VALID);
 }
 
 
@@ -136,11 +133,14 @@ static inline bool USB_HandleSetup(void)
                 break;
 
             case USB_REQUEST_SET_CONFIGURATION:
-                // Clear DTOG for all data endpoints
-                USB_ClearDTOGTX(&(USB->EP1R));
-                USB_ClearDTOGRX(&(USB->EP1R));
-                USB_ClearDTOGTX(&(USB->EP2R));
-                USB_ClearDTOGRX(&(USB->EP2R));
+                // Clear DTOG (RX and TX) for all data endpoints, keeping
+                // CTR_RX, CTR_TX, EP_TYPE and EA
+                USB->EP1R = USB->EP1R & (USB_EP1R_EP_TYPE | USB_EP1R_EA
+                    | USB_EP1R_DTOG_RX | USB_EP1R_DTOG_TX
+                    | USB_EP_CTR_RX | USB_EP_CTR_TX);
+                USB->EP2R = USB->EP2R & (USB_EP2R_EP_TYPE | USB_EP2R_EA
+                    | USB_EP2R_DTOG_RX | USB_EP2R_DTOG_TX
+                    | USB_EP_CTR_RX | USB_EP_CTR_TX);
 
                 reply_response = USB_EP_TX_VALID;
                 break;
@@ -170,17 +170,16 @@ static inline bool USB_HandleSetup(void)
         USB_MemoryToPMA(USB_BTABLE_ENTRIES[0].ADDR_TX, reply_data,
             reply_length);
         USB_BTABLE_ENTRIES[0].COUNT_TX = reply_length;
-        USB_SetEPTXStatus(&(USB->EP0R), USB_EP_TX_VALID);
+        USB->EP0R = (USB_EP_TX_NAK ^ USB_EP_TX_VALID)
+            | USB_EP_CTR_RX | USB_EP_CTR_TX | USB_EPR_EP_TYPE_CONTROL | 0;
     }
     else
     {
         // Send response
         USB_BTABLE_ENTRIES[0].COUNT_TX = 0;
-        USB_SetEPTXStatus(&(USB->EP0R), reply_response);
+        USB->EP0R = (USB_EP_TX_NAK ^ reply_response)
+            | USB_EP_CTR_RX | USB_EP_CTR_TX | USB_EPR_EP_TYPE_CONTROL | 0;
     }
-
-    // Ready for the next packet
-    USB_SetEPRXStatus(&(USB->EP0R), USB_EP_RX_VALID);
 
     return !exit_bootloader;
 }
@@ -209,8 +208,11 @@ bool USB_Poll(void)
                         // Out transfer
                         if(USB->EP0R & USB_EP0R_SETUP)
                         {
-                            // Clear CTR_RX
-                            USB_ClearCTRRX(&(USB->EP0R));
+                            // Clear CTR_RX and set RX status to VALID (from
+                            // NAK)
+                            USB->EP0R = USB_EP_CTR_TX
+                                | (USB_EP_RX_NAK ^ USB_EP_RX_VALID)
+                                | USB_EPR_EP_TYPE_CONTROL | 0; 
 
                             // Setup packed received and check if a command to
                             // exit the bootloader was received
@@ -224,8 +226,11 @@ bool USB_Poll(void)
                             // Only setup packets are supported, so other out
                             // transfers are just ignored
 
-                            // Clear CTR_RX
-                            USB_ClearCTRRX(&(USB->EP0R));
+                            // Clear CTR_RX and set RX status to VALID (from
+                            // NAK)
+                            USB->EP0R = USB_EP_CTR_TX
+                                | (USB_EP_RX_NAK ^ USB_EP_RX_VALID)
+                                | USB_EPR_EP_TYPE_CONTROL | 0; 
                         }
                     }
                     else
@@ -233,7 +238,7 @@ bool USB_Poll(void)
                         // In transfer
 
                         // Clear CTR_TX
-                        USB_ClearCTRTX(&(USB->EP0R));
+                        USB->EP0R = USB_EP_CTR_RX | USB_EPR_EP_TYPE_CONTROL | 0;
 
                         USB_HandleIn();
                     }
@@ -246,16 +251,16 @@ bool USB_Poll(void)
                     // automatically.
 
                     // Clear CTR_TX
-                    USB_BTABLE_ENTRIES[1].COUNT_TX = 0;
-                    USB_ClearCTRTX(&(USB->EP1R));
+                    USB->EP1R = USB_EPR_EP_TYPE_BULK | 1;
                     break;
 
                 case 2:
                     // Data out endpoint
 
-                    // Clear CTR_RX
-                    USB_ClearCTRRX(&(USB->EP2R));
-                    USB_SetEPRXStatus(&(USB->EP2R), USB_EP_RX_VALID);
+                    // Clear CTR_RX and set RX status to VALID (which is NAK
+                    // after a correct transfer)
+                    USB->EP2R = (USB_EP_RX_VALID ^ USB_EP_RX_NAK)
+                        | USB_EPR_EP_TYPE_BULK | 2;
 
                     // Out transfer finished
                     USB_HandleEP2Out();

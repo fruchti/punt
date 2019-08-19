@@ -6,6 +6,17 @@
 
 static Command_t USB_PendingCommand = CMD_NOP;
 
+static void USB_EP1Transmit(const void *data, uint16_t length)
+{
+    USB_MemoryToPMA(USB_BTABLE_ENTRIES[1].ADDR_TX, data, length);
+    USB_BTABLE_ENTRIES[1].COUNT_TX = length;
+
+    // Assume that STAT_TX is currently NAK (which is the case after a reset or
+    // after a correct transfer, just not if the function is called multiple
+    // times without an actual transfer in between)
+    USB->EP1R = (USB_EP_TX_NAK ^ USB_EP_TX_VALID)
+        | USB_EP_CTR_RX | USB_EP_CTR_TX | USB_EPR_EP_TYPE_BULK | 1;
+}
 
 bool USB_HandleCommand(const USB_SetupPacket_t *sp)
 {
@@ -58,23 +69,10 @@ bool USB_HandleCommand(const USB_SetupPacket_t *sp)
 
     if(reply_length > 0)
     {
-        // Reply with data via endpoint 1
-        USB_MemoryToPMA(USB_BTABLE_ENTRIES[1].ADDR_TX, reply_data,
-            reply_length);
-        USB_BTABLE_ENTRIES[1].COUNT_TX = reply_length;
-
-        USB_SetEPTXStatus(&(USB->EP1R), USB_EP_TX_VALID);
+        USB_EP1Transmit(reply_data, reply_length);
     }
 
     return true;
-}
-
-void USB_EP1Transmit(void *data, uint16_t length)
-{
-    USB_MemoryToPMA(USB_BTABLE_ENTRIES[1].ADDR_TX, data, length);
-    USB_BTABLE_ENTRIES[1].COUNT_TX = length;
-
-    USB_SetEPTXStatus(&(USB->EP1R), USB_EP_TX_VALID);
 }
 
 void USB_HandleEP2Out(void)
