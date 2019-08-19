@@ -88,7 +88,7 @@ void USB_HandleEP2Out(void)
             if(packet_length == 8)
             {
                 uint32_t buff[2];
-                USB_PMAToMemory((uint8_t*)buff, USB_BTABLE_ENTRIES[2].ADDR_RX,
+                USB_PMAToMemory(buff, USB_BTABLE_ENTRIES[2].ADDR_RX,
                     sizeof(buff));
                 uint32_t *addr = (uint32_t*)(buff[0]);
                 uint32_t length = buff[1];
@@ -113,7 +113,7 @@ void USB_HandleEP2Out(void)
             if(packet_length == 8)
             {
                 uint32_t buff[2];
-                USB_PMAToMemory((uint8_t*)buff, USB_BTABLE_ENTRIES[2].ADDR_RX,
+                USB_PMAToMemory(buff, USB_BTABLE_ENTRIES[2].ADDR_RX,
                     sizeof(buff));
                 uint8_t *start = (uint8_t*)(buff[0]);
                 uint32_t length = buff[1];
@@ -154,7 +154,7 @@ void USB_HandleEP2Out(void)
 
         case CMD_PROGRAM:;
             uint32_t start;
-            USB_PMAToMemory((uint8_t*)&start, USB_BTABLE_ENTRIES[2].ADDR_RX, 4);
+            USB_PMAToMemory(&start, USB_BTABLE_ENTRIES[2].ADDR_RX, 4);
             uint32_t length = packet_length - 4;
             if(start >= FLASH_APPLICATION_BASE && start + length
                 <= FLASH_BASE + FLASH_PAGE_BYTES * FLASH_PAGES)

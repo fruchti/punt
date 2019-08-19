@@ -99,7 +99,7 @@ static inline bool USB_HandleSetup(void)
     bool exit_bootloader = false;
 
     USB_SetupPacket_t sp;
-    USB_PMAToMemory((uint8_t*)&sp, USB_BTABLE_ENTRIES[0].ADDR_RX,
+    USB_PMAToMemory(&sp, USB_BTABLE_ENTRIES[0].ADDR_RX,
         sizeof(USB_SetupPacket_t));
 
     const uint8_t *reply_data = NULL;
