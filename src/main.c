@@ -99,10 +99,7 @@ int main(void)
 
     if(Bootloader_EntryCondition())
     {
-        LED_Init();
         USB_Init();
-
-        LED_OFF();
 
         while(USB_Poll());
 

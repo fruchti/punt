@@ -5,7 +5,6 @@
 #include "stm32f103x6.h"
 
 #include "pinning.h"
-#include "debug.h"
 
 #define USB_TOKEN_OUT                           0b0001
 #define USB_TOKEN_IN                            0x1001
