@@ -34,12 +34,12 @@ OBJCOPY = arm-none-eabi-objcopy
 SIZE = arm-none-eabi-size
 OBJDUMP = arm-none-eabi-objdump
 
-BUILD_NUMBER_FILE = build-number.txt
+BUILD_NUMBER_FILE = build_number.txt
 BUILD_ID_FLAGS = -Xlinker --defsym -Xlinker __BUILD_DATE=$$(date +'%Y%m%d') \
 				 -Xlinker --defsym -Xlinker __BUILD_NUMBER=$$(cat $(BUILD_NUMBER_FILE))
 
 CURRENT_BUILD_CONFIG := $(shell cat makefile | md5sum) DEBUG = $(DEBUG)
-LAST_BUILD_CONFIG := $(shell if [ -e $(BUILD_DIR)/build-config.txt ] ; then cat $(BUILD_DIR)/build-config.txt ; fi)
+LAST_BUILD_CONFIG := $(shell if [ -e $(BUILD_DIR)/build_config.txt ] ; then cat $(BUILD_DIR)/build_config.txt ; fi)
 
 SOURCES = $(filter-out $(addprefix %/,$(EXCLUDE_SOURCES)),$(foreach dir,$(SOURCE_DIRS),$(wildcard $(dir)/*.c))) \
 		  $(ADDITIONAL_SOURCES)
@@ -115,7 +115,7 @@ incrementalbuild: $(BUILD_DIR) $(OBJECTS) $(STARTUP_OBJECTS) $(BUILD_DIR)/$(PROJ
 	@echo "Finished build $$(cat $(BUILD_NUMBER_FILE)). Binary size:"
 	@echo " SZ $(BUILD_DIR)/$(PROJECT).elf"
 	$(Q)$(SIZE) $(BUILD_DIR)/$(PROJECT).elf
-	@echo "$(CURRENT_BUILD_CONFIG)" > $(BUILD_DIR)/build-config.txt
+	@echo "$(CURRENT_BUILD_CONFIG)" > $(BUILD_DIR)/build_config.txt
 
 .PHONY: program
 program: $(BUILD_DIR)/$(PROJECT).bin
