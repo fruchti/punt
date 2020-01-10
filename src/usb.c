@@ -11,7 +11,6 @@ MODULE_OWNS_PIN(GPIOA, PIN_USB_DM);
 MODULE_OWNS_PIN(GPIOA, PIN_USB_DP);
 
 uint8_t USB_DeviceStatus[2] = {0x00, 0x00};
-volatile unsigned int USB_ResetCount = 0;
 volatile unsigned int USB_Address = 0;
 
 void USB_Init(void)
@@ -47,7 +46,6 @@ static inline void USB_HandleReset(void)
 {
     // Remove reset flag
     USB->ISTR = (uint16_t)~(USB_ISTR_RESET);
-    USB_ResetCount++;
 
     // Set buffer table origin
     USB->BTABLE = USB_BTABLE_OFFSET;
