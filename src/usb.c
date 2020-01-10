@@ -131,15 +131,8 @@ static inline bool USB_HandleSetup(void)
                 break;
 
             case USB_REQUEST_SET_CONFIGURATION:
-                // Clear DTOG (RX and TX) for all data endpoints, keeping
-                // CTR_RX, CTR_TX, EP_TYPE and EA
-                USB->EP1R = USB->EP1R & (USB_EP1R_EP_TYPE | USB_EP1R_EA
-                    | USB_EP1R_DTOG_RX | USB_EP1R_DTOG_TX
-                    | USB_EP_CTR_RX | USB_EP_CTR_TX);
-                USB->EP2R = USB->EP2R & (USB_EP2R_EP_TYPE | USB_EP2R_EA
-                    | USB_EP2R_DTOG_RX | USB_EP2R_DTOG_TX
-                    | USB_EP_CTR_RX | USB_EP_CTR_TX);
-
+                // There is only one configuration, so this request is ignored
+                // (but still accepted)
                 reply_response = USB_EP_TX_VALID;
                 break;
 
