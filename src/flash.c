@@ -15,9 +15,9 @@ static inline void Flash_Lock(void)
     FLASH->CR = FLASH_CR_LOCK;
 }
 
-Flash_Status_t Flash_ErasePage(int page)
+Flash_Status_t Flash_ErasePage(unsigned int page)
 {
-    if(page < 0 || page >= FLASH_PAGES)
+    if(page >= FLASH_PAGES)
     {
         return FLASH_PROHIBITED;
     }

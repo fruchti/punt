@@ -17,6 +17,6 @@ typedef enum
                                 + FLASH_BOOTLOADER_PAGES * FLASH_PAGE_BYTES)
 
 
-Flash_Status_t Flash_ErasePage(int page);
+Flash_Status_t Flash_ErasePage(unsigned int page);
 void Flash_ProgramFromPMA(uint32_t flash_adress, uint16_t pma_offset,
     uint32_t length);

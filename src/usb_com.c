@@ -136,7 +136,7 @@ void USB_HandleEP2Out(void)
                 USB_PMAToMemory(buff, USB_BTABLE_ENTRIES[2].ADDR_RX,
                     sizeof(buff));
 
-                int page_index = buff[0];
+                unsigned int page_index = buff[0];
                 if(page_index < FLASH_BOOTLOADER_PAGES)
                 {
                     // Do not allow erasing the bootloader
