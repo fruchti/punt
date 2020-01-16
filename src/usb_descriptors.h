@@ -4,59 +4,47 @@
 #include <stddef.h>
 #include "stm32f103x6.h"
 
-typedef union
+typedef struct
 {
-    struct
-    {
-        uint8_t bLength;
-        uint8_t bDescriptorType;
-        uint16_t bcdUSB;
-        uint8_t bDeviceClass;
-        uint8_t bDeviceSubClass;
-        uint8_t bDeviceProtocol;
-        uint8_t bMaxPacketSize0;
-        uint16_t idVendor;
-        uint16_t idProduct;
-        uint16_t bcdDevice;
-        uint8_t iManufacturer;
-        uint8_t iProduct;
-        uint8_t iSerialNumber;
-        uint8_t bNumConfigurations;
-    };
-    uint8_t raw[18];
-} __attribute__((packed)) USB_DeviceDescriptor_t;
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint16_t bcdUSB;
+    uint8_t bDeviceClass;
+    uint8_t bDeviceSubClass;
+    uint8_t bDeviceProtocol;
+    uint8_t bMaxPacketSize0;
+    uint16_t idVendor;
+    uint16_t idProduct;
+    uint16_t bcdDevice;
+    uint8_t iManufacturer;
+    uint8_t iProduct;
+    uint8_t iSerialNumber;
+    uint8_t bNumConfigurations;
+} __attribute__((packed, aligned(1))) USB_DeviceDescriptor_t;
 
-typedef union
+typedef struct
 {
-    struct
-    {
-        uint8_t bLength;
-        uint8_t bDescriptorType;
-        uint16_t wTotalLength;
-        uint8_t bNumInterfaces;
-        uint8_t bConfigurationValue;
-        uint8_t iConfiguration;
-        uint8_t bmAttributes;
-        uint8_t bMaxPower;        
-    } __attribute__((packed, aligned(1)));
-    uint8_t raw[9];
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint16_t wTotalLength;
+    uint8_t bNumInterfaces;
+    uint8_t bConfigurationValue;
+    uint8_t iConfiguration;
+    uint8_t bmAttributes;
+    uint8_t bMaxPower;        
 } __attribute__((packed, aligned(1))) USB_ConfigurationDescriptor_t;
 
-typedef union
+typedef struct
 {
-    struct
-    {
-        uint8_t bLength;
-        uint8_t bDescriptorType;
-        uint8_t bInterfaceNumber;
-        uint8_t bAlternateSetting;
-        uint8_t bNumEndpoints;
-        uint8_t bInterfaceClass;
-        uint8_t bInterfaceSubClass;
-        uint8_t bInterfaceProtocol;
-        uint8_t iInterface;        
-    } __attribute__((packed, aligned(1)));
-    uint8_t raw[9];
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint8_t bInterfaceNumber;
+    uint8_t bAlternateSetting;
+    uint8_t bNumEndpoints;
+    uint8_t bInterfaceClass;
+    uint8_t bInterfaceSubClass;
+    uint8_t bInterfaceProtocol;
+    uint8_t iInterface;        
 } __attribute__((packed, aligned(1))) USB_InterfaceDescriptor_t;
 
 // Endpoint direction for the bEndpointAddress field
@@ -78,30 +66,22 @@ typedef union
 #define USB_ENDPOINT_FEEDBACK                   0x10
 #define USB_ENDPOINT_IMPLICIT_FEEDBACK_DATA     0x20
 
-typedef union
+typedef struct
 {
-    struct
-    {
-        uint8_t bLength;
-        uint8_t bDescriptorType;
-        uint8_t bEndpointAddress;
-        uint8_t bmAttributes;
-        uint16_t wMaxPacketSize;
-        uint8_t bInterval;        
-    } __attribute__((packed, aligned(1)));
-    uint8_t raw[7];
+    uint8_t bLength;
+    uint8_t bDescriptorType;
+    uint8_t bEndpointAddress;
+    uint8_t bmAttributes;
+    uint16_t wMaxPacketSize;
+    uint8_t bInterval;        
 } __attribute__((packed, aligned(1))) USB_EndpointDescriptor_t;
 
-typedef union
+typedef struct
 {
-    struct
-    {
-        USB_ConfigurationDescriptor_t configuration;
-        USB_InterfaceDescriptor_t main_interface;
-        USB_EndpointDescriptor_t data_in_endpoint;
-        USB_EndpointDescriptor_t data_out_endpoint;
-    } __attribute__((packed, aligned(1)));
-    uint8_t raw[32];
+    USB_ConfigurationDescriptor_t configuration;
+    USB_InterfaceDescriptor_t main_interface;
+    USB_EndpointDescriptor_t data_in_endpoint;
+    USB_EndpointDescriptor_t data_out_endpoint;
 } __attribute__((packed, aligned(1))) USB_WholeDescriptor_t;
 
 
@@ -129,5 +109,5 @@ typedef enum
 
 
 void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
-    int descriptor_index, const uint8_t **reply_data, int *reply_length,
+    int descriptor_index, const void **reply_data, int *reply_length,
     uint8_t *reply_response);

@@ -85,18 +85,18 @@ const uint16_t USB_StringDescriptor_Serial[] =
     USB_BUILD_STRING_DESCRIPTOR(USB_STRING_SERIAL);
 
 void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
-    int descriptor_index, const uint8_t **reply_data, int *reply_length,
+    int descriptor_index, const void **reply_data, int *reply_length,
     uint8_t *reply_response)
 {
     switch(descriptor_type)
     {
         case USB_DEVICE_DESCRIPTOR:
-            *reply_data = USB_DeviceDescriptor.raw;
+            *reply_data = &USB_DeviceDescriptor;
             *reply_length = USB_DeviceDescriptor.bLength;
             break;
 
         case USB_CONFIGURATION_DESCRIPTOR:
-            *reply_data = USB_ConfigurationInterfaceDescriptor.raw;
+            *reply_data = &USB_ConfigurationInterfaceDescriptor;
             if(*reply_length < USB_ConfigurationInterfaceDescriptor
                 .configuration.wTotalLength)
             {   
@@ -150,8 +150,8 @@ void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
             break;
 
         case USB_INTERFACE_DESCRIPTOR:
-            *reply_data = USB_ConfigurationInterfaceDescriptor
-                    .main_interface.raw;
+            *reply_data = &USB_ConfigurationInterfaceDescriptor
+                    .main_interface;
             *reply_length = USB_ConfigurationInterfaceDescriptor
                     .main_interface.bLength;
             break;

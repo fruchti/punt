@@ -100,7 +100,7 @@ static inline bool USB_HandleSetup(void)
     USB_PMAToMemory(&sp, USB_BTABLE_ENTRIES[0].ADDR_RX,
         sizeof(USB_SetupPacket_t));
 
-    const uint8_t *reply_data = NULL;
+    const void *reply_data = NULL;
     int reply_length = 0;
     uint8_t reply_response = USB_EP_TX_STALL;
 
