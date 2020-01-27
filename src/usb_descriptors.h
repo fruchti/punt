@@ -31,7 +31,7 @@ typedef struct
     uint8_t bConfigurationValue;
     uint8_t iConfiguration;
     uint8_t bmAttributes;
-    uint8_t bMaxPower;        
+    uint8_t bMaxPower;
 } __attribute__((packed, aligned(1))) USB_ConfigurationDescriptor_t;
 
 typedef struct
@@ -44,7 +44,7 @@ typedef struct
     uint8_t bInterfaceClass;
     uint8_t bInterfaceSubClass;
     uint8_t bInterfaceProtocol;
-    uint8_t iInterface;        
+    uint8_t iInterface;
 } __attribute__((packed, aligned(1))) USB_InterfaceDescriptor_t;
 
 // Endpoint direction for the bEndpointAddress field
@@ -73,7 +73,7 @@ typedef struct
     uint8_t bEndpointAddress;
     uint8_t bmAttributes;
     uint16_t wMaxPacketSize;
-    uint8_t bInterval;        
+    uint8_t bInterval;
 } __attribute__((packed, aligned(1))) USB_EndpointDescriptor_t;
 
 typedef struct

@@ -75,7 +75,7 @@ static inline void Bootloader_Exit(void)
     BKP->DR1 = 0x0000;
 
     // Reset peripherals
-    RCC->APB1RSTR = RCC_APB1RSTR_USBRST; 
+    RCC->APB1RSTR = RCC_APB1RSTR_USBRST;
     RCC->APB2RSTR = RCC_APB2RSTR_IOPARST | RCC_APB2RSTR_AFIORST;
     RCC->APB1RSTR = 0x00000000;
     RCC->APB2RSTR = 0x00000000;

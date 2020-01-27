@@ -124,7 +124,7 @@ static inline bool USB_HandleSetup(void)
                 USB_HandleGetDescriptor(descriptor_type, descriptor_index,
                     &reply_data, &reply_length, &reply_response);
                 break;
-            
+
             case USB_REQUEST_SET_ADDRESS:
                 USB_Address = sp.wValue & USB_DADDR_ADD;
                 reply_response = USB_EP_TX_VALID;
@@ -203,7 +203,7 @@ bool USB_Poll(void)
                             // NAK)
                             USB->EP0R = USB_EP_CTR_TX
                                 | (USB_EP_RX_NAK ^ USB_EP_RX_VALID)
-                                | USB_EPR_EP_TYPE_CONTROL | 0; 
+                                | USB_EPR_EP_TYPE_CONTROL | 0;
 
                             // Setup packed received and check if a command to
                             // exit the bootloader was received
@@ -221,7 +221,7 @@ bool USB_Poll(void)
                             // NAK)
                             USB->EP0R = USB_EP_CTR_TX
                                 | (USB_EP_RX_NAK ^ USB_EP_RX_VALID)
-                                | USB_EPR_EP_TYPE_CONTROL | 0; 
+                                | USB_EPR_EP_TYPE_CONTROL | 0;
                         }
                     }
                     else
@@ -237,7 +237,7 @@ bool USB_Poll(void)
 
                 case 1:
                     // Data in endpoint
-                    
+
                     // In transfer finished. STAT_TX gets set to NAK
                     // automatically.
 

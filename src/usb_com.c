@@ -45,7 +45,7 @@ bool USB_HandleCommand(const USB_SetupPacket_t *sp)
             // length are transferred via EP2
             USB_PendingCommand = CMD_READ_MEMORY;
             break;
-        
+
         case CMD_ERASE_PAGE:
             // The command will be executed as soon as the page number is
             // transferred via EP2. Since only a single byte is needed for the

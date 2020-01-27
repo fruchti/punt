@@ -6,26 +6,26 @@
 .type Reset_Handler, %function
 Reset_Handler:
 init_data:
-	ldr	r2, =_start_init_data
-	ldr	r3, =_start_data
-	ldr	r1, =_end_data
+    ldr r2, =_start_init_data
+    ldr r3, =_start_data
+    ldr r1, =_end_data
 
 init_data_loop:
-	cmp	r3, r1
-	bhs	zero_bss
-	ldr	r0, [r2], #4
-	str	r0, [r3], #4
-	b init_data_loop
+    cmp r3, r1
+    bhs zero_bss
+    ldr r0, [r2], #4
+    str r0, [r3], #4
+    b init_data_loop
 
 zero_bss:
-	ldr	r3, =_start_bss
-	ldr	r1, =_end_bss
+    ldr r3, =_start_bss
+    ldr r1, =_end_bss
     movs r0, #0
 
 zero_bss_loop:
-	cmp	r3, r1
-	bhs	init_finished
-	str	r0, [r3], #4
+    cmp r3, r1
+    bhs init_finished
+    str r0, [r3], #4
     b zero_bss_loop
 
 init_finished:
