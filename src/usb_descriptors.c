@@ -71,9 +71,8 @@ const USB_WholeDescriptor_t USB_ConfigurationInterfaceDescriptor =
 };
 
 #define USB_STRING_LANGID                       0x0409
-#define USB_STRING_VENDOR                       0
-#define USB_STRING_PRODUCT                      'P', 'u', 'n', 't', 0
-#define USB_STRING_SERIAL                       0
+#define USB_STRING_VENDOR                       '2', '5', '1', '2', '0'
+#define USB_STRING_PRODUCT                      'p', 'u', 'n', 't'
 
 const uint16_t USB_StringDescriptor_LangID[] =
     USB_BUILD_STRING_DESCRIPTOR(USB_STRING_LANGID);
@@ -81,8 +80,6 @@ const uint16_t USB_StringDescriptor_Vendor[] =
     USB_BUILD_STRING_DESCRIPTOR(USB_STRING_VENDOR);
 const uint16_t USB_StringDescriptor_Product[] =
     USB_BUILD_STRING_DESCRIPTOR(USB_STRING_PRODUCT);
-const uint16_t USB_StringDescriptor_Serial[] =
-    USB_BUILD_STRING_DESCRIPTOR(USB_STRING_SERIAL);
 
 void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
     int descriptor_index, const void **reply_data, int *reply_length,
@@ -99,7 +96,7 @@ void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
             *reply_data = &USB_ConfigurationInterfaceDescriptor;
             if(*reply_length < USB_ConfigurationInterfaceDescriptor
                 .configuration.wTotalLength)
-            {   
+            {
                 *reply_length = USB_ConfigurationInterfaceDescriptor
                     .configuration.bLength;
             }
@@ -127,7 +124,7 @@ void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
                     break;
                 case 3:;
                     // String descriptors are 16 bits per char
-                    static uint16_t buff[26];
+                    static uint16_t buff[25];
                     // The first byte is the total length in bytes, the second
                     // byte is the descriptor type (3)
                     buff[0] = (0x03 << 8) | sizeof(buff);
@@ -141,8 +138,7 @@ void USB_HandleGetDescriptor(USB_DescriptorType_t descriptor_type,
                         buff[1 + 2 * i] = 'A' + (uid_byte & 0x0f);
                         buff[2 + 2 * i] = 'A' + (uid_byte >> 4);
                     }
-                    // Null-terminate the string
-                    buff[sizeof(buff) / 2 - 1] = 0;
+
                     *reply_data = (uint8_t*)buff;
                     *reply_length = (uint8_t)*buff;
                     break;
