@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string.h>
+#include <stddef.h>
 #include <stdbool.h>
 #include "stm32f103x6.h"
 
