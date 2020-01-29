@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 #define BUILD_VERSION_MAJOR     0
-#define BUILD_VERSION_MINOR     1
+#define BUILD_VERSION_MINOR     2
 #define BUILD_VERSION_PATCH     0
 
 #define BUILD_DATE              ((uint32_t)&__BUILD_DATE)
