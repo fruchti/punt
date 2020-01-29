@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <string.h>
 #include "stm32f103x6.h"
 
 #include "usb.h"

@@ -9,11 +9,15 @@ typedef enum
     // Does nothing
     CMD_NOP = 0x00,
 
-    // Basic bootloader info. Returns 8 bytes:
+    // Basic bootloader info. Returns 19 to 64 bytes (cf. BootloaderInfo_t):
     //  <-  Build date: u32 (YYYYMMDD as an unsigned integer)
     //  <-  Build number: u32
     //  <-  Flash application base address: u32
     //  <-  Maximum application size: u32
+    //  <-  Major version: u8
+    //  <-  Minor version: u8
+    //  <-  Patch version: u8
+    //  <-  Identifier string (variable length, not zero-terminated)
     CMD_BOOTLOADER_INFO = 0x01,
 
     // Calculate a CRC32 of a memory region:
@@ -41,3 +45,15 @@ typedef enum
     // Exit bootloader and start application software
     CMD_EXIT = 0xff
 } Command_t;
+
+typedef struct
+{
+    uint32_t build_date;
+    uint32_t build_number;
+    uint32_t flash_application_start;
+    uint32_t flash_application_size;
+    uint8_t version_major;
+    uint8_t version_minor;
+    uint8_t version_patch;
+    char identifier[];
+} __attribute__((packed, aligned(1))) BootloaderInfo_t;

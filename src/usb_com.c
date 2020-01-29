@@ -4,6 +4,20 @@
 #include "buildinfo.h"
 #include "flash.h"
 
+static const BootloaderInfo_t BootloaderInfo =
+{
+    .build_date = BUILD_DATE,
+    .build_number = BUILD_NUMBER,
+    .flash_application_start = FLASH_APPLICATION_BASE,
+    .flash_application_size = (FLASH_PAGES - FLASH_BOOTLOADER_PAGES)
+        * FLASH_PAGE_BYTES,
+    .version_major = BUILD_VERSION_MAJOR,
+    .version_minor = BUILD_VERSION_MINOR,
+    .version_patch = BUILD_VERSION_PATCH,
+    .identifier = "STM32F103T8U6"
+};
+
+
 static Command_t USB_PendingCommand = CMD_NOP;
 
 static void USB_EP1Transmit(const void *data, uint16_t length)
@@ -30,8 +44,9 @@ bool USB_HandleCommand(const USB_SetupPacket_t *sp)
     switch(command)
     {
         case CMD_BOOTLOADER_INFO:
-            reply_data = &BuildInfo;
-            reply_length = sizeof(BuildInfo);
+            reply_data = &BootloaderInfo;
+            reply_length = sizeof(BootloaderInfo)
+                + strlen(BootloaderInfo.identifier);
             break;
 
         case CMD_READ_CRC:
