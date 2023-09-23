@@ -71,7 +71,8 @@ const USB_WholeDescriptor_t USB_ConfigurationInterfaceDescriptor =
 };
 
 #define USB_STRING_LANGID                       0x0409
-#define USB_STRING_VENDOR                       '2', '5', '1', '2', '0'
+#define USB_STRING_VENDOR                       '2', '5', '1', '2', '0', \
+    '.', 'o', 'r', 'g'
 #define USB_STRING_PRODUCT                      'p', 'u', 'n', 't'
 
 const uint16_t USB_StringDescriptor_LangID[] =
